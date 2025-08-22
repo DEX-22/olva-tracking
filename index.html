@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tracking OlvaExpress</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen">
+  <div id="app" class="max-w-5xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-blue-400">📦 Tracking OlvaExpress</h1>
+
+    <!-- Buscador -->
+    <div class="bg-gray-800 p-6 rounded-2xl shadow mb-6 flex items-center gap-4">
+      <input 
+        v-model="tracking"
+        placeholder="Ingresa número de remito"
+        class="flex-1 bg-gray-700 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+      <button 
+        @click="getTracking"
+        class="bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-lg text-white font-semibold transition"
+      >
+        Buscar
+      </button>
+    </div>
+
+    <!-- Mensajes -->
+    <div v-if="loading" class="text-gray-400">⏳ Cargando...</div>
+    <div v-if="error" class="text-red-400 font-semibold">⚠️ {{ error }}</div>
+
+    <!-- Información General -->
+    <div v-if="data.general" class="bg-gray-800 p-6 rounded-2xl shadow mb-6">
+      <h2 class="text-xl font-bold text-blue-400 mb-4">Información General</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <p><span class="font-semibold">Remito:</span> {{ data.general.remito }}</p>
+        <p><span class="font-semibold">Remitente:</span> {{ data.general.remitente }}</p>
+        <p><span class="font-semibold">Consignado:</span> {{ data.general.consignado }}</p>
+        <p><span class="font-semibold">Contenido:</span> {{ data.general.contenido }}</p>
+        <p><span class="font-semibold">Peso:</span> {{ data.general.peso }} kg</p>
+        <p><span class="font-semibold">Cantidad:</span> {{ data.general.cantidad }}</p>
+        <p><span class="font-semibold">Estado:</span> 
+          <span class="px-2 py-1 rounded-lg text-sm bg-green-600 text-white">{{ data.general.nombre_estado_tracking }}</span>
+        </p>
+        <p><span class="font-semibold">Oficina:</span> {{ data.general.nombre_oficina }}</p>
+        <p><span class="font-semibold">Ruta:</span> {{ data.general.origen }} → {{ data.general.destino }}</p>
+      </div>
+    </div>
+
+    <!-- Detalles -->
+    <div v-if="data.details && data.details.length" class="bg-gray-800 p-6 rounded-2xl shadow">
+      <h2 class="text-xl font-bold text-blue-400 mb-4">Historial de Estados</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-700 text-gray-300 text-sm uppercase">
+              <th class="p-3 text-left">Fecha</th>
+              <th class="p-3 text-left">Sede</th>
+              <th class="p-3 text-left">Estado</th>
+              <th class="p-3 text-left">Observaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="d in data.details" :key="d.id_rpt_envio_ruta" class="hover:bg-gray-700 transition">
+              <td class="p-3 text-sm text-nowrap">{{ d.fecha_creacion }}</td>
+              <td class="p-3 text-sm">{{ d.nombre_sede || '-' }}</td>
+              <td class="p-3 text-sm">
+                <span class="px-2 py-1 rounded-lg bg-indigo-600 text-white text-xs whitespace-normal break-words max-w-xs inline-block">
+                    {{ d.estado_tracking }}
+                </span>
+            </td>
+              <td class="p-3 text-sm">{{ d.obs }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        tracking: "2274261",
+        data: {},
+        loading: false,
+        error: ""
+      },
+      methods: {
+        async getTracking() {
+          this.loading = true;
+          this.error = "";
+          this.data = {};
+          try {
+            const url = `https://reports.olvaexpress.pe/webservice/rest/getTrackingInformation?tracking=${this.tracking}&emision=25&apikey=a82e5d192fae9bbfee43a964024498e87dfecb884b67c7e95865a3bb07b607dd&details=1`;
+            const res = await axios.get(url);
+            if (res.data.success) {
+              this.data = res.data.data;
+            } else {
+              this.error = res.data.msg || "No se pudo obtener el tracking";
+            }
+          } catch (e) {
+            this.error = "Error al conectar con el servicio";
+          } finally {
+            this.loading = false;
+          }
+        }
+      },
+      mounted() {
+        this.getTracking();
+      }
+    })
+  </script>
+</body>
+</html>
