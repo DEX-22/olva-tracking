@@ -47,36 +47,30 @@
         <p><span class="font-semibold">Ruta:</span> {{ data.general.origen }} → {{ data.general.destino }}</p>
       </div>
     </div>
+<!-- Timeline -->
+<div v-if="data.details && data.details.length" class="bg-gray-800 p-6 rounded-2xl shadow">
+  <h2 class="text-xl font-bold text-blue-400 mb-6">Historial de Estados</h2>
 
-    <!-- Detalles -->
-    <div v-if="data.details && data.details.length" class="bg-gray-800 p-6 rounded-2xl shadow">
-      <h2 class="text-xl font-bold text-blue-400 mb-4">Historial de Estados</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-700 text-gray-300 text-sm uppercase">
-              <th class="p-3 text-left">Fecha</th>
-              <th class="p-3 text-left">Sede</th>
-              <th class="p-3 text-left">Estado</th>
-              <th class="p-3 text-left">Observaciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="d in data.details" :key="d.id_rpt_envio_ruta" class="hover:bg-gray-700 transition">
-              <td class="p-3 text-sm text-nowrap">{{ d.fecha_creacion }}</td>
-              <td class="p-3 text-sm">{{ d.nombre_sede || '-' }}</td>
-              <td class="p-3 text-sm">
-                <span class="px-2 py-1 rounded-lg bg-indigo-600 text-white text-xs whitespace-normal break-words max-w-xs inline-block">
-                    {{ d.estado_tracking }}
-                </span>
-            </td>
-              <td class="p-3 text-sm">{{ d.obs }}</td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="relative border-l border-gray-700 ml-4">
+    <div v-for="d in data.details" :key="d.id_rpt_envio_ruta" class="mb-8 ml-6 relative">
+      
+      <!-- Punto del timeline -->
+      <span class="absolute -left-3 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 ring-4 ring-gray-800"></span>
+      
+      <!-- Tarjeta del evento -->
+      <div class="bg-gray-700 p-4 rounded-xl shadow-md hover:bg-gray-600 transition">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
+          <p class="text-sm text-gray-400">{{ d.fecha_creacion }}</p>
+          <p class="text-sm font-medium text-gray-300">{{ d.nombre_sede || '—' }}</p>
+        </div>
+        <p class="inline-block px-3 py-1 rounded-lg bg-indigo-600 text-white text-xs font-semibold whitespace-normal break-words max-w-md">
+          {{ d.estado_tracking }}
+        </p>
+        <p v-if="d.obs" class="text-sm text-gray-300 mt-2 whitespace-pre-line break-words">{{ d.obs }}</p>
       </div>
     </div>
   </div>
+</div> 
 
   <script>
     new Vue({
