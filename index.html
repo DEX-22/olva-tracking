@@ -76,7 +76,7 @@
     new Vue({
       el: "#app",
       data: {
-        tracking: "2274261",
+        tracking: "",
         data: {},
         loading: false,
         error: ""
@@ -102,7 +102,9 @@
         }
       },
       mounted() {
-        this.getTracking();
+        if(this.tracking) {
+          this.getTracking();
+        } 
       }
     })
   </script>
